@@ -27,7 +27,7 @@ def player(board):
     # Get the number of X's on the board; we use list comprehension so we can sum the count of X for each row in the board
     x_count = sum([row.count(X) for row in board])
     # Get the number of O's on the board; ditto above
-    o_count = sum([row.count[O] for row in board])
+    o_count = sum([row.count(O) for row in board])
 
     # If more Xs than Os, it's O's turn
     if x_count > o_count:
@@ -100,9 +100,9 @@ def winner(board):
 
     # Check for diagonal; hard coding coordinates while I can't think of a more elegant way to do this yet
     # Basically if all cells in the diagonal are equal and not empty, the value in those cells is the winning player
-    if board[0][0] == board [1][1] == board [2][2] and not board[0][0] == EMPTY:
+    if board[0][0] == board[1][1] == board[2][2] and not board[0][0] == EMPTY:
         return board[0][0]
-    if board[0][2] == board [1][1] == board [2][0] and not board[0][2] == EMPTY:
+    if board[0][2] == board[1][1] == board[2][0] and not board[0][2] == EMPTY:
         return board[0][2]
 
     # Otherwise, no winners yet
@@ -116,7 +116,7 @@ def terminal(board):
     """
     # Let's utilize our winner function; i.e. if there's already a winner, the game is over
     # Or if there are no more EMPTY cells on the board
-    if winner(board) or sum([row.count[EMPTY] for row in board]) == 0:
+    if winner(board) or sum([row.count(EMPTY) for row in board]) == 0:
         return True
     
     # Else, game is still ongoing
@@ -143,4 +143,64 @@ def minimax(board):
     """
     Returns the optimal action for the current player on the board.
     """
-    raise NotImplementedError
+    # If board is in terminal state (i.e. game over), return None
+    if terminal(board):
+        return None
+
+    # Otherwise, we proceed
+    # Get the current player
+    current_player = player(board)
+
+    if current_player == X:
+        # Get the max value of the current board
+        max_score = max_value(board)
+        # Return the action that provides the max_score
+        for action in actions(board):
+            if min_value(result(board, action)) == max_score:
+                return action
+    elif current_player == O:
+        # Get the min value of the current board
+        min_score = min_value(board)
+        # Return the action that provides the min_score
+        for action in actions(board):
+            if max_value(result(board, action)) == min_score:
+                return action
+
+    # Catch all return value
+    return None
+    # raise NotImplementedError
+
+
+# Minimax function for player X
+def max_value(board):
+    # If board is in terminal state, return the utility value
+    if terminal(board):
+        return utility(board)
+
+    # Otherwise, we perform the min-max check
+    # Set initial output_value
+    output_value = -math.inf
+    
+    # Loop through each action available
+    for action in actions(board):
+        # For each action, obtain the maximum value based on the minimum value that can be derived by the opponent from the resulting board state
+        output_value = max(output_value, min_value(result(board, action)))
+
+    return output_value
+
+
+# Minimax function for player O
+def min_value(board):
+    # If board is in terminal state, return the utility value
+    if terminal(board):
+        return utility(board)
+
+    # Otherwise, we perform the min-max check
+    # Set initial output_value
+    output_value = math.inf
+
+    # Loop through each action available after the selected action is taken
+    for action in actions(board):
+        output_value = min(output_value, max_value(result(board, action)))
+
+    return output_value
