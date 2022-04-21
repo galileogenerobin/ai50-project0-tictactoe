@@ -24,9 +24,9 @@ def player(board):
     Returns player who has the next turn on a board.
     """
     
-    # Get the number of X's on the board
+    # Get the number of X's on the board; we use list comprehension so we can sum the count of X for each row in the board
     x_count = sum([row.count(X) for row in board])
-    # Get the number of O's on the board
+    # Get the number of O's on the board; ditto above
     o_count = sum([row.count[O] for row in board])
 
     # If more Xs than Os, it's O's turn
@@ -82,21 +82,61 @@ def winner(board):
     """
     Returns the winner of the game, if there is one.
     """
-    raise NotImplementedError
+    # Check for horizontal
+    for row in board:
+        if row.count(X) == 3:
+            return X
+        if row.count(O) == 3:
+            return O
+    
+    # Check for vertical
+    for i in range(3):
+        # List comprehension to get a list of all items in the i index of each row == our column
+        column = [row[i] for row in board]
+        if column.count(X) == 3:
+            return X
+        if column.count(O) == 3:
+            return O
+
+    # Check for diagonal; hard coding coordinates while I can't think of a more elegant way to do this yet
+    # Basically if all cells in the diagonal are equal and not empty, the value in those cells is the winning player
+    if board[0][0] == board [1][1] == board [2][2] and not board[0][0] == EMPTY:
+        return board[0][0]
+    if board[0][2] == board [1][1] == board [2][0] and not board[0][2] == EMPTY:
+        return board[0][2]
+
+    # Otherwise, no winners yet
+    return None
+    # raise NotImplementedError
 
 
 def terminal(board):
     """
     Returns True if game is over, False otherwise.
     """
-    raise NotImplementedError
+    # Let's utilize our winner function; i.e. if there's already a winner, the game is over
+    # Or if there are no more EMPTY cells on the board
+    if winner(board) or sum([row.count[EMPTY] for row in board]) == 0:
+        return True
+    
+    # Else, game is still ongoing
+    return False
+    # raise NotImplementedError
 
 
 def utility(board):
     """
     Returns 1 if X has won the game, -1 if O has won, 0 otherwise.
     """
-    raise NotImplementedError
+    # Let's utilize our winner function
+    if winner(board) == X:
+        return 1
+    elif winner(board) == O:
+        return -1
+    else:
+        return 0
+
+    # raise NotImplementedError
 
 
 def minimax(board):
